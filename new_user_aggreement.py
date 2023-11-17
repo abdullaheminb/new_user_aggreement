@@ -6,7 +6,7 @@ from email.message import EmailMessage
 from email import encoders
 import ssl
 import smtplib
-from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
 
 
 #Connect Airtable
@@ -48,7 +48,7 @@ def email_pdf(rows):
     #This function sends a mail with a specified title body and attachment for each row
     email_sender = "grikunduz@gmail.com"
     email_password = os.environ.get("GMAIL_APP_PD")
-    email_receiver = "justin@ortege.io"
+    email_receiver = "abdullah@ortege.io"
 
     subject = "ORtege User Aggrement PDF"
     mail_body =  """
@@ -68,13 +68,13 @@ def email_pdf(rows):
     #Attach the pdf
     with open(f'{rows["fields"]["ID"]}.pdf', "rb") as attachment_file:
         file_data = attachment_file.read()
-        file_name = f'{rows["fields"]["ID"]}.pdf'  
+        file_name = attachment_file.name.split("/")[-1] 
 
     #Create an instance of MIMEApplication and encode the attachment
-    attachment = MIMEApplication(file_data, Name=file_name)
+    attachment = MIMEBase("application", "octet-stream")
     attachment.set_payload(file_data)
     encoders.encode_base64(attachment)
-    attachment.add_header('Content-Disposition', 'attachment', filename=file_name)
+    attachment.add_header('Content-Disposition', f'attachment; filename="{file_name}"')
     em.attach(attachment)
 
     #Add SSL
